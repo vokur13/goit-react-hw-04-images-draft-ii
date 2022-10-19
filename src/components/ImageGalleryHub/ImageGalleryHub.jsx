@@ -15,17 +15,23 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-export function ImageGalleryHub({ query }) {
+export function ImageGalleryHub({ query, gallery }) {
   const [page, setPage] = useState(1);
-  const [gallery, setGallery] = useState([]);
+  const [_gallery, setGallery] = useState(gallery);
+  console.log('query', query);
 
   useEffect(() => {
-    API.getGallery(query, page).then(response => setGallery(response));
-  }, []);
+    if (!query) {
+      return;
+    }
+    API.getGallery(query, page).then(response =>
+      setGallery(prevState => [...prevState, ...response.hits])
+    );
+  }, [page, query]);
 
   return (
     <>
-      <ImageGallery data={gallery} />;
+      <ImageGallery data={_gallery} />;
       {/* {total < totalHits ? (
          <Box display="flex" justifyContent="center">
            <Button type="button" onClick={this.handleMoreImage}>
