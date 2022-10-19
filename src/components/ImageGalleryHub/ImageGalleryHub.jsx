@@ -15,37 +15,67 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-export function ImageGalleryHub({ query, gallery }) {
+export function ImageGalleryHub({ query, gallery, total, totalHits }) {
   const [page, setPage] = useState(1);
   const [_gallery, setGallery] = useState(gallery);
-  console.log('query', query);
+  const [_total, setTotal] = useState(total);
+  const [_totalHits, setTotalHits] = useState(totalHits);
+  const [error, setError] = useState(false);
+  const [status, setStatus] = useState(Status.IDLE);
 
   useEffect(() => {
     if (!query) {
       return;
     }
-    API.getGallery(query, page).then(response =>
-      setGallery(prevState => [...prevState, ...response.hits])
-    );
+    setStatus(Status.PENDING);
+    API.getGallery(query, page)
+      .then(response => {
+        console.log('response', response);
+        setGallery(prevState => [...prevState, ...response.hits]);
+        setTotal(prevState => prevState + response.hits.length);
+        setTotalHits(response.totalHits);
+        setStatus(Status.RESOLVED);
+      })
+      .catch(error => {
+        setError(error.message);
+        setStatus(Status.REJECTED);
+      })
+      .finally(() => {});
   }, [page, query]);
 
-  return (
-    <>
-      <ImageGallery data={_gallery} />;
-      {/* {total < totalHits ? (
-         <Box display="flex" justifyContent="center">
-           <Button type="button" onClick={this.handleMoreImage}>
-             Load more
-           </Button>
-         </Box>
-       ) : null}
-       {total === totalHits
-         ? toast.warn(
-             "We're sorry, but you've reached the end of search results."
-           )
-         : null} */}
-    </>
-  );
+  function handleMoreImage() {
+    setPage(prevState => prevState + 1);
+    console.log('handleMoreBtn');
+  }
+
+  if (status === Status.IDLE) {
+    return <div>Please let us know your query item</div>;
+  }
+  if (status === Status.PENDING) {
+    return <ImageGalleryPending query={query} data={_gallery} />;
+  }
+  if (status === Status.REJECTED) {
+    return <ImageGalleryError message={error.message} />;
+  }
+  if (status === Status.RESOLVED) {
+    return (
+      <>
+        <ImageGallery data={_gallery} />;
+        {_total < _totalHits ? (
+          <Box display="flex" justifyContent="center">
+            <Button type="button" onClick={handleMoreImage}>
+              Load more
+            </Button>
+          </Box>
+        ) : null}
+        {_total === _totalHits
+          ? toast.warn(
+              "We're sorry, but you've reached the end of search results."
+            )
+          : null}
+      </>
+    );
+  }
 }
 
 // export class protoImageGalleryHub extends Component {

@@ -18,7 +18,6 @@ export function App() {
     if (!query) {
       return toast.warn('Please let us know your query item');
     }
-
     setPage(initialValue);
     setQuery(query.trim().toLowerCase());
     setGallery([]);
