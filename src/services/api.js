@@ -12,7 +12,7 @@ const searchParams = new URLSearchParams({
   per_page: 12,
 });
 
-export const getGallery = async (query, page) => {
-  const { data } = await axios.get(`/?q=${query}&page=${page}&${searchParams}`);
+export function getGallery(query, page) {
+  const { data } = axios.get(`/?q=${query}&page=${page}&${searchParams}`);
   return data;
-};
+}

@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { Form, Field, ErrorMessage } from 'formik';
 
-export const SearchForm = styled(Form)`
+export const SearchForm = styled.form`
   display: flex;
   align-items: center;
   width: 100%;
@@ -11,7 +10,7 @@ export const SearchForm = styled(Form)`
   overflow: hidden;
 `;
 
-export const Input = styled(Field)`
+export const Input = styled.input`
   display: inline-block;
   width: 100%;
   font: inherit;
@@ -24,11 +23,6 @@ export const Input = styled(Field)`
     font: inherit;
     font-size: ${props => `${props.theme.fontSizes.s}px`};
   }
-`;
-
-export const Error = styled(ErrorMessage)`
-  color: ${props => props.theme.colors.red};
-  margin-bottom: ${props => `${props.theme.space[2]}px`};
 `;
 
 export const SearchFormButton = styled.button`

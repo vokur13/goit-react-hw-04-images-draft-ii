@@ -35,7 +35,7 @@ export class App extends Component {
     const { page, query, gallery, total, totalHits } = this.state;
     return (
       <>
-        <Searchbar onSubmit={this.handleFormSubmit} />
+        <Searchbar onFormSubmit={this.handleFormSubmit} />
         <ImageGalleryHub
           page={page}
           query={query}

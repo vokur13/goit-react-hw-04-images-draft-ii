@@ -1,22 +1,39 @@
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 // import { toast } from 'react-toastify';
 // import { ReactComponent as MyIcon } from './.svg';
-import { Formik } from 'formik';
 import { Box } from 'components/Box';
-import { SearchForm, Input, SearchFormButton, Error } from './Searchbar.styled';
+import { SearchForm, Input, SearchFormButton } from './Searchbar.styled';
 import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { ImSearch } from 'react-icons/im';
 
-let schema = yup.object().shape({
+const schema = yup.object().shape({
   query: yup.string(),
 });
 
-export const Searchbar = ({ onSubmit }) => {
-  const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    onSubmit(values);
-    setSubmitting(false);
-    resetForm();
+export function Searchbar({ onFormSubmit }) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isSubmitSuccessful },
+  } = useForm({ resolver: yupResolver(schema) });
+
+  const onSubmit = data => {
+    onFormSubmit(data);
   };
+
+  console.log(watch('query'));
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset({ query: '' });
+    }
+  }, [isSubmitSuccessful, reset]);
+
   return (
     <Box
       top={0}
@@ -34,33 +51,22 @@ export const Searchbar = ({ onSubmit }) => {
       boxShadow="appBar"
       as="header"
     >
-      <Formik
-        initialValues={{ query: '' }}
-        validationSchema={schema}
-        onSubmit={handleSubmit}
-      >
-        {({ isSubmitting }) => (
-          <SearchForm>
-            <SearchFormButton type="submit" disabled={isSubmitting}>
-              <ImSearch style={{ marginRight: 0 }} />
-            </SearchFormButton>
-
-            <Input
-              className="input"
-              type="text"
-              autoComplete="off"
-              autoFocus
-              name="query"
-              //       required
-              placeholder="Search images and photos"
-            />
-            <Error component="div" name="query" />
-          </SearchForm>
-        )}
-      </Formik>
+      <SearchForm onSubmit={handleSubmit(onSubmit)}>
+        <SearchFormButton type="submit">
+          <ImSearch style={{ marginRight: 0 }} />
+        </SearchFormButton>
+        <Input
+          placeholder="Search images and photos"
+          autoComplete="off"
+          autoFocus
+          defaultValue=""
+          {...register('query')}
+        />
+        <p>{errors.query?.message}</p>
+      </SearchForm>
     </Box>
   );
-};
+}
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func,
