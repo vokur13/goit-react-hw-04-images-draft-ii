@@ -1,4 +1,4 @@
-import { Component, useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import * as API from 'services/api';
@@ -30,22 +30,38 @@ export function ImageGalleryHub({ query, gallery, total, totalHits }) {
     setStatus(Status.PENDING);
     API.getGallery(query, page)
       .then(response => {
-        console.log('response', response);
         setGallery(prevState => [...prevState, ...response.hits]);
         setTotal(prevState => prevState + response.hits.length);
+
+        // setStatus(Status.RESOLVED);
+        if (response.hits.length === 0) {
+          return toast.error(
+            `Sorry, there are no images matching your search query for '${query}'. Please try again.`
+          );
+        }
+        toast.success(`Hooray! We found ${_totalHits} images.`);
         setTotalHits(response.totalHits);
         setStatus(Status.RESOLVED);
       })
       .catch(error => {
-        setError(error.message);
+        console.log(error);
+        setError(true);
+        toast.error(`Sorry, something goes wrong: ${error.message}`);
         setStatus(Status.REJECTED);
-      })
-      .finally(() => {});
-  }, [page, query]);
+      });
+  }, [_totalHits, page, query]);
+
+  //   useEffect(() => {
+  //     if (!query ?? !_totalHits) {
+  //       return toast.error(
+  //         `Sorry, there are no images matching your search query for '${query}'. Please try again.`
+  //       );
+  //     }
+  //     toast.success(`Hooray! We found ${_totalHits} images.`);
+  //   }, [_totalHits, query]);
 
   function handleMoreImage() {
     setPage(prevState => prevState + 1);
-    console.log('handleMoreBtn');
   }
 
   if (status === Status.IDLE) {
@@ -77,6 +93,12 @@ export function ImageGalleryHub({ query, gallery, total, totalHits }) {
     );
   }
 }
+
+// response.totalHits === 0
+//         ? toast.error(
+//             `Sorry, there are no images matching your search query for '${query}'. Please try again.`
+//           )
+//         : toast.success(`Hooray! We found ${_totalHits} images.`);
 
 // export class protoImageGalleryHub extends Component {
 //   static defaultProps = {
