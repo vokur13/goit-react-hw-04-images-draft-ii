@@ -1,8 +1,8 @@
 {
-  "name": "goit-react-hw-03-image-finder-draft-ii",
+  "name": "goit-react-hw-04-image-finder-draft-ii",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://vokur13.github.io/goit-react-hw-03-image-finder-draft-ii/",
+  "homepage": "https://vokur13.github.io/goit-react-hw-04-image-finder-draft-ii/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@hookform/resolvers": "^2.9.9",

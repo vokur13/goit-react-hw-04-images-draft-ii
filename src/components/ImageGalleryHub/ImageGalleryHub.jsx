@@ -15,39 +15,77 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-export function ImageGalleryHub({ query, gallery, total, totalHits }) {
+export function ImageGalleryHub({ perPage, query, gallery, total, totalHits }) {
   const [page, setPage] = useState(1);
+  const [_perPage] = useState(perPage);
   const [_gallery, setGallery] = useState(gallery);
   const [_total, setTotal] = useState(total);
   const [_totalHits, setTotalHits] = useState(totalHits);
   const [error, setError] = useState(false);
   const [status, setStatus] = useState(Status.IDLE);
+  const [loadMore, setLoadMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     if (!query) {
       return;
     }
+    console.log('_gallery BEFORE Fetch', _gallery);
     setStatus(Status.PENDING);
-    API.getGallery(query, page)
+    API.getGallery(query, page, _perPage)
       .then(response => {
         setGallery(prevState => [...prevState, ...response.hits]);
         setTotal(prevState => prevState + response.hits.length);
         setTotalHits(response.totalHits);
         setStatus(Status.RESOLVED);
-        // if (response.hits.length === 0) {
-        //   return toast.error(
-        //     `Sorry, there are no images matching your search query for '${query}'. Please try again.`
-        //   );
-        // }
-        // toast.success(`Hooray! We found ${_totalHits} images.`);
       })
       .catch(error => {
         console.log(error);
         setError(true);
         toast.error(`Sorry, something goes wrong: ${error.message}`);
         setStatus(Status.REJECTED);
-      });
-  }, [page, query]);
+      })
+      .finally(() => {});
+  }, [_gallery, _perPage, page, query]);
+
+  useEffect(() => {
+    console.log('_gallery AFTER Fetch', _gallery);
+  }, [_gallery]);
+
+  //   const currentPage = Math.ceil(_total / _perPage);
+  //   const totalPages = Math.ceil(_totalHits / _total);
+
+  //   useEffect(() => {
+  //     if (_total === 0) {
+  //       toast.error(
+  //         `Sorry, there are no images matching your search query for '${query}'. Please try again.`
+  //       );
+  //     }
+  //   }, [_total, query]);
+
+  //   useEffect(() => {
+  //     if (!_total) {
+  //       return;
+  //     }
+  //     setCurrentPage(Math.ceil(_total / _perPage));
+  //     setTotalPages(Math.ceil(_totalHits / _total));
+  //     if (currentPage === 1) {
+  //       toast.success(`Hooray! We found ${_totalHits} images.`);
+  //       setLoadMore(prevState => !prevState);
+  //     }
+  //   }, [_perPage, _total, _totalHits, currentPage]);
+
+  //   useEffect(() => {
+  //     if (!currentPage) {
+  //       return;
+  //     }
+  //     if (totalPages === currentPage) {
+  //       console.log('totalPages === currentPage', totalPages === currentPage);
+  //       toast.warn("We're sorry, but you've reached the end of search results.");
+  //       setLoadMore(prevState => !prevState);
+  //     }
+  //   }, [currentPage, totalPages]);
 
   function handleMoreImage() {
     setPage(prevState => prevState + 1);
@@ -73,11 +111,6 @@ export function ImageGalleryHub({ query, gallery, total, totalHits }) {
             </Button>
           </Box>
         ) : null}
-        {_total === _totalHits
-          ? toast.warn(
-              "We're sorry, but you've reached the end of search results."
-            )
-          : null}
       </>
     );
   }
